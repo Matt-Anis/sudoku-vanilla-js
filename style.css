@@ -168,7 +168,7 @@ label {
 
 @media (max-width: 480px) {
   body {
-    padding: 8px;
+    padding: 4px;
   }
 
   #welcome {
@@ -180,7 +180,8 @@ label {
   }
 
   #board-container {
-    padding: 8px;
+    padding: 4px;
+    border-width: 2px;
   }
 
   #game-status {
@@ -189,8 +190,8 @@ label {
   }
 
   .board-cell {
-    width: 33px;
-    height: 33px;
-    font-size: 16px;
+    width: 30px;
+    height: 30px;
+    font-size: 14px;
   }
 }
