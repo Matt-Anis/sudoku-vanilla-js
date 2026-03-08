@@ -1,6 +1,6 @@
 # Sudoku
 
-Live demo: https://matt-anis.github.io/sudoku/
+Live demo: https://matt-anis.github.io/sudoku-vanilla-js/
 
 ## How the board is created
 
