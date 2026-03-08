@@ -1,5 +1,5 @@
-import { createEmptyBoard } from './board.js';
-import { fillBoardWithBacktracking } from './backtracking.js';
+import { createEmptyBoard } from './core/board.js';
+import { fillBoardWithBacktracking } from './core/backtracking.js';
 
 const generateBoard = () => {
     const board = createEmptyBoard();
