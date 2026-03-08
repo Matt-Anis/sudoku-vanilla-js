@@ -1,5 +1,0 @@
-challenges:
-- how to store the data:
-    probably in a matrice
-
-- how to generate a fully correct matrix? 
