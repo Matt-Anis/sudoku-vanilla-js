@@ -3,26 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Sudoku</title>
+    <title>Sudoku - Play Online</title>
     <link rel="stylesheet" href="style.css" />
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Permanent+Marker&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Mono:wght@700&display=swap"
       rel="stylesheet"
     />
   </head>
   <body>
     <section id="welcome">
-        <h1>Sudoku</h1>
+      <h1>SUDOKU</h1>
+      <p class="subtitle">Challenge your mind with logic puzzles</p>
       <div id="select-difficulty">
-        <label for="difficulty">Select Difficulty:</label>
+        <label for="difficulty">Choose your challenge</label>
         <select id="difficulty">
-          <option value="easy">Easy</option>
-          <option value="medium">Medium</option>
-          <option value="hard">Hard</option>
+          <option value="easy">Easy - Beginner Friendly</option>
+          <option value="medium">Medium - Moderate Challenge</option>
+          <option value="hard">Hard - Expert Level</option>
         </select>
-        <button id="start-button">Start Game</button>
+        <button id="start-button">Start Playing</button>
       </div>
     </section>
     <section id="board-container" style="display: none"></section>
