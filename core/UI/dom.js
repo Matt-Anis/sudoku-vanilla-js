@@ -1,6 +1,15 @@
 import { generateBoard } from '../../index.js';
 import { EMPTY_CELL, GRID_SIZE } from '../board.js';
 import { canPlaceValueAtCell } from '../validators.js';
+import { createTimerElement, startTimer, stopTimer } from '../timer.js';
+import {
+    resetErrors,
+    setDifficulty,
+    incrementErrors,
+    hasExceededMaxErrors,
+    createErrorDisplayElement,
+    updateErrorDisplay,
+} from '../score.js';
 
 const DIFFICULTY_CONFIG = {
     easy: { visibilityThreshold: 0.5 },
@@ -14,9 +23,13 @@ const DOM_SELECTORS = {
     welcomeSection: 'welcome',
     boardContainer: 'board-container',
     gameStatus: 'game-status',
+    gameInfo: 'game-info',
 };
 
 let currentBoard = null;
+let timerIntervalId = null;
+let timerElement = null;
+let errorElement = null;
 
 const getElementByid = (id) => document.getElementById(id);
 
@@ -97,6 +110,13 @@ const validateCellInput = (cellElement, rowIndex, colIndex) => {
     if (!isValidMoveOnCurrentBoard(currentBoard, rowIndex, colIndex, numValue)) {
         cellElement.classList.add('invalid');
         clearStatusMessage();
+        
+        incrementErrors();
+        updateErrorDisplay(errorElement);
+        
+        if (hasExceededMaxErrors()) {
+            handleGameOver();
+        }
     } else {
         cellElement.classList.remove('invalid');
         checkGameCompletion();
@@ -124,10 +144,26 @@ const checkGameCompletion = () => {
         }
     }
 
+    stopTimer(timerIntervalId);
     const statusElement = getElementByid(DOM_SELECTORS.gameStatus);
     if (statusElement) {
-        statusElement.textContent = 'Puzzle completed!';
+        statusElement.textContent = '🎉 Puzzle Completed!';
         statusElement.style.color = '#000';
+    }
+};
+
+const handleGameOver = () => {
+    stopTimer(timerIntervalId);
+    
+    const boardCells = document.querySelectorAll('.board-cell.editable');
+    boardCells.forEach(cell => {
+        cell.setAttribute('disabled', 'true');
+    });
+    
+    const statusElement = getElementByid(DOM_SELECTORS.gameStatus);
+    if (statusElement) {
+        statusElement.textContent = '❌ Game Over! Too many errors.';
+        statusElement.style.color = '#d32f2f';
     }
 };
 
@@ -139,6 +175,18 @@ const renderBoardGrid = (board, difficulty) => {
     statusElement.id = DOM_SELECTORS.gameStatus;
     statusElement.textContent = '';
     boardContainer.appendChild(statusElement);
+
+    const gameInfoElement = document.createElement('div');
+    gameInfoElement.id = DOM_SELECTORS.gameInfo;
+    boardContainer.appendChild(gameInfoElement);
+
+    timerElement = createTimerElement();
+    gameInfoElement.appendChild(timerElement);
+
+    errorElement = createErrorDisplayElement();
+    gameInfoElement.appendChild(errorElement);
+
+    timerIntervalId = startTimer(timerElement);
 
     const boardGridElement = document.createElement('div');
     boardGridElement.classList.add('board-grid');
@@ -170,6 +218,13 @@ const handleStartGame = () => {
     const difficulty = getDifficultyLevel();
     const solvedBoard = generateBoard();
     currentBoard = solvedBoard.map((row) => [...row]);
+
+    resetErrors();
+    setDifficulty(difficulty);
+    
+    if (timerIntervalId) {
+        stopTimer(timerIntervalId);
+    }
 
     renderBoardGrid(solvedBoard, difficulty);
     toggleSectionVisibility(true);
