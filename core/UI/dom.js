@@ -1,5 +1,6 @@
 import { generateBoard } from '../../index.js';
-import { EMPTY_CELL } from '../board.js';
+import { EMPTY_CELL, GRID_SIZE } from '../board.js';
+import { canPlaceValueAtCell } from '../validators.js';
 
 const DIFFICULTY_CONFIG = {
     easy: { visibilityThreshold: 0.5 },
@@ -15,7 +16,6 @@ const DOM_SELECTORS = {
     gameStatus: 'game-status',
 };
 
-let solutionBoard = null;
 let currentBoard = null;
 
 const getElementByid = (id) => document.getElementById(id);
@@ -59,28 +59,44 @@ const populateCellWithValue = (cellElement, value, difficulty, rowIndex, colInde
     }
 };
 
+const isValidMoveOnCurrentBoard = (board, rowIndex, colIndex, value) => {
+    const previousValue = board[rowIndex][colIndex];
+    board[rowIndex][colIndex] = EMPTY_CELL;
+    const isValidMove = canPlaceValueAtCell(board, rowIndex, colIndex, value);
+    board[rowIndex][colIndex] = previousValue;
+    return isValidMove;
+};
+
+const clearStatusMessage = () => {
+    const statusElement = getElementByid(DOM_SELECTORS.gameStatus);
+    if (statusElement) statusElement.textContent = '';
+};
+
 const validateCellInput = (cellElement, rowIndex, colIndex) => {
     const input = cellElement.value.trim();
-    
+
     if (input === '') {
         cellElement.classList.remove('invalid');
         currentBoard[rowIndex][colIndex] = EMPTY_CELL;
+        clearStatusMessage();
         return;
     }
-    
-    const numValue = parseInt(input);
-    
+
+    const numValue = parseInt(input, 10);
+
     if (isNaN(numValue) || numValue < 1 || numValue > 9) {
         cellElement.value = '';
         cellElement.classList.remove('invalid');
         currentBoard[rowIndex][colIndex] = EMPTY_CELL;
+        clearStatusMessage();
         return;
     }
-    
+
     currentBoard[rowIndex][colIndex] = numValue;
-    
-    if (numValue !== solutionBoard[rowIndex][colIndex]) {
+
+    if (!isValidMoveOnCurrentBoard(currentBoard, rowIndex, colIndex, numValue)) {
         cellElement.classList.add('invalid');
+        clearStatusMessage();
     } else {
         cellElement.classList.remove('invalid');
         checkGameCompletion();
@@ -94,17 +110,23 @@ const attachCellValidation = (cellElement, rowIndex, colIndex) => {
 };
 
 const checkGameCompletion = () => {
-    for (let row = 0; row < 9; row++) {
-        for (let col = 0; col < 9; col++) {
-            if (currentBoard[row][col] !== solutionBoard[row][col]) {
+    for (let row = 0; row < GRID_SIZE; row++) {
+        for (let col = 0; col < GRID_SIZE; col++) {
+            const value = currentBoard[row][col];
+
+            if (value === EMPTY_CELL) {
+                return;
+            }
+
+            if (!isValidMoveOnCurrentBoard(currentBoard, row, col, value)) {
                 return;
             }
         }
     }
-    
+
     const statusElement = getElementByid(DOM_SELECTORS.gameStatus);
     if (statusElement) {
-        statusElement.textContent = '🎉 Puzzle Completed! Well Done!';
+        statusElement.textContent = 'Puzzle completed!';
         statusElement.style.color = '#000';
     }
 };
@@ -146,10 +168,10 @@ const toggleSectionVisibility = (showBoardContainer) => {
 
 const handleStartGame = () => {
     const difficulty = getDifficultyLevel();
-    solutionBoard = generateBoard();
-    currentBoard = solutionBoard.map(row => [...row]);
-    
-    renderBoardGrid(solutionBoard, difficulty);
+    const solvedBoard = generateBoard();
+    currentBoard = solvedBoard.map((row) => [...row]);
+
+    renderBoardGrid(solvedBoard, difficulty);
     toggleSectionVisibility(true);
 };
 
